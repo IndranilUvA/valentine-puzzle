@@ -1,0 +1,21 @@
+body {
+  text-align: center;
+  font-family: Arial;
+  background: #ffe6f0;
+}
+
+#puzzle-container {
+  width: 90vw;
+  max-width: 800px;
+  height: 90vw;
+  max-height: 800px;
+  margin: 20px auto;
+  display: grid;
+  gap: 2px;
+}
+
+.piece {
+  background-size: 100% 100%;
+  cursor: pointer;
+  border-radius: 4px;
+}
