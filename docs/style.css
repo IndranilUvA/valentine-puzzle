@@ -44,9 +44,12 @@ h1 {
   transform: scale(1.05);
   box-shadow: 6px 6px 15px rgba(0,0,0,0.3);
   transition: left 0.2s ease, top 0.2s ease;
+  touch-action: none;
+  transition: left 0.2s ease, top 0.2s ease;
 }
 
 /* When correctly placed (we set border in JS) */
 .piece[data-locked="true"] {
   box-shadow: 0 0 12px rgba(0, 200, 100, 0.7);
 }
+
