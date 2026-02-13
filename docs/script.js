@@ -10,12 +10,14 @@ let draggedPiece = null;
 
 function loadPuzzle() {
   container.innerHTML = "";
+  container.style.display = "grid";
   container.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
 
   board = [];
 
   const imgPath = `img${currentImage}.jpeg`;
 
+  // Create shuffled order
   let indices = [];
   for (let i = 0; i < size * size; i++) indices.push(i);
   shuffle(indices);
@@ -35,10 +37,10 @@ function loadPuzzle() {
     piece.style.backgroundPosition =
       `${(correctCol * 100) / (size - 1)}% ${(correctRow * 100) / (size - 1)}%`;
 
-    piece.dataset.correctRow = correctRow;
-    piece.dataset.correctCol = correctCol;
     piece.dataset.row = row;
     piece.dataset.col = col;
+    piece.dataset.correctRow = correctRow;
+    piece.dataset.correctCol = correctCol;
     piece.dataset.group = val;
 
     piece.draggable = true;
@@ -60,7 +62,7 @@ function dragStart(e) {
 
 function dropPiece(e) {
   const target = e.target;
-  if (draggedPiece === target) return;
+  if (!draggedPiece || draggedPiece === target) return;
 
   swapGroups(draggedPiece, target);
   mergeAdjacent();
@@ -71,36 +73,35 @@ function swapGroups(p1, p2) {
   const g1 = p1.dataset.group;
   const g2 = p2.dataset.group;
 
-  const group1Pieces = board.filter(p => p.dataset.group === g1);
-  const group2Pieces = board.filter(p => p.dataset.group === g2);
+  const group1 = board.filter(p => p.dataset.group === g1);
+  const group2 = board.filter(p => p.dataset.group === g2);
 
-  group1Pieces.forEach(p => {
-    p.dataset.row = parseInt(p.dataset.row) +
-      (p2.dataset.row - p1.dataset.row);
-    p.dataset.col = parseInt(p.dataset.col) +
-      (p2.dataset.col - p1.dataset.col);
+  const deltaRow = parseInt(p2.dataset.row) - parseInt(p1.dataset.row);
+  const deltaCol = parseInt(p2.dataset.col) - parseInt(p1.dataset.col);
+
+  // Move group 1
+  group1.forEach(p => {
+    p.dataset.row = parseInt(p.dataset.row) + deltaRow;
+    p.dataset.col = parseInt(p.dataset.col) + deltaCol;
   });
 
-  group2Pieces.forEach(p => {
-    p.dataset.row = parseInt(p.dataset.row) +
-      (p1.dataset.row - p2.dataset.row);
-    p.dataset.col = parseInt(p.dataset.col) +
-      (p1.dataset.col - p2.dataset.col);
+  // Move group 2
+  group2.forEach(p => {
+    p.dataset.row = parseInt(p.dataset.row) - deltaRow;
+    p.dataset.col = parseInt(p.dataset.col) - deltaCol;
   });
 
   reRender();
 }
 
 function reRender() {
-  const pieces = Array.from(container.children);
-
-  pieces.sort((a, b) => {
-    const posA = a.dataset.row * size + parseInt(a.dataset.col);
-    const posB = b.dataset.row * size + parseInt(b.dataset.col);
+  board.sort((a, b) => {
+    const posA = parseInt(a.dataset.row) * size + parseInt(a.dataset.col);
+    const posB = parseInt(b.dataset.row) * size + parseInt(b.dataset.col);
     return posA - posB;
   });
 
-  pieces.forEach(p => container.appendChild(p));
+  board.forEach(p => container.appendChild(p));
 }
 
 function areNeighborsInSolution(p1, p2) {
