@@ -1,7 +1,7 @@
 const container = document.getElementById("puzzle-container");
 const statusText = document.getElementById("status");
 
-const size = 6;
+const size = 3;
 const totalImages = 10;
 
 let currentImage = 1;
@@ -76,19 +76,26 @@ function swapGroups(p1, p2) {
   const group1 = board.filter(p => p.dataset.group === g1);
   const group2 = board.filter(p => p.dataset.group === g2);
 
-  const deltaRow = parseInt(p2.dataset.row) - parseInt(p1.dataset.row);
-  const deltaCol = parseInt(p2.dataset.col) - parseInt(p1.dataset.col);
+  // Save original positions
+  const positions1 = group1.map(p => ({
+    row: parseInt(p.dataset.row),
+    col: parseInt(p.dataset.col)
+  }));
 
-  // Move group 1
-  group1.forEach(p => {
-    p.dataset.row = parseInt(p.dataset.row) + deltaRow;
-    p.dataset.col = parseInt(p.dataset.col) + deltaCol;
+  const positions2 = group2.map(p => ({
+    row: parseInt(p.dataset.row),
+    col: parseInt(p.dataset.col)
+  }));
+
+  // Swap positions
+  group1.forEach((p, i) => {
+    p.dataset.row = positions2[i % positions2.length].row;
+    p.dataset.col = positions2[i % positions2.length].col;
   });
 
-  // Move group 2
-  group2.forEach(p => {
-    p.dataset.row = parseInt(p.dataset.row) - deltaRow;
-    p.dataset.col = parseInt(p.dataset.col) - deltaCol;
+  group2.forEach((p, i) => {
+    p.dataset.row = positions1[i % positions1.length].row;
+    p.dataset.col = positions1[i % positions1.length].col;
   });
 
   reRender();
@@ -180,3 +187,4 @@ function shuffle(array) {
 }
 
 loadPuzzle();
+
