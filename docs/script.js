@@ -3,22 +3,16 @@ const statusText = document.getElementById("status");
 
 const size = 6;
 const totalImages = 10;
-const boardSize = 360;
 
 let currentImage = 1;
-let pieceSize = boardSize / size;
 let board = [];
-let groups = {};
+let draggedPiece = null;
 
 function loadPuzzle() {
   container.innerHTML = "";
-  container.style.width = boardSize + "px";
-  container.style.height = boardSize + "px";
-  container.style.display = "grid";
   container.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
 
   board = [];
-  groups = {};
 
   const imgPath = `img${currentImage}.jpeg`;
 
@@ -26,9 +20,9 @@ function loadPuzzle() {
   for (let i = 0; i < size * size; i++) indices.push(i);
   shuffle(indices);
 
-  indices.forEach((val, i) => {
-    const row = Math.floor(i / size);
-    const col = i % size;
+  indices.forEach((val, index) => {
+    const row = Math.floor(index / size);
+    const col = index % size;
 
     const correctRow = Math.floor(val / size);
     const correctCol = val % size;
@@ -36,20 +30,16 @@ function loadPuzzle() {
     const piece = document.createElement("div");
     piece.classList.add("piece");
 
-    piece.style.width = pieceSize + "px";
-    piece.style.height = pieceSize + "px";
     piece.style.backgroundImage = `url(${imgPath})`;
-    piece.style.backgroundSize = `${boardSize}px ${boardSize}px`;
+    piece.style.backgroundSize = `${size * 100}% ${size * 100}%`;
     piece.style.backgroundPosition =
-      `-${correctCol * pieceSize}px -${correctRow * pieceSize}px`;
+      `${(correctCol * 100) / (size - 1)}% ${(correctRow * 100) / (size - 1)}%`;
 
     piece.dataset.correctRow = correctRow;
     piece.dataset.correctCol = correctCol;
-    piece.dataset.currentRow = row;
-    piece.dataset.currentCol = col;
+    piece.dataset.row = row;
+    piece.dataset.col = col;
     piece.dataset.group = val;
-
-    groups[val] = [piece];
 
     piece.draggable = true;
 
@@ -64,52 +54,42 @@ function loadPuzzle() {
   statusText.innerText = `Puzzle ${currentImage} of ${totalImages}`;
 }
 
-let draggedPiece = null;
-
 function dragStart(e) {
   draggedPiece = e.target;
 }
 
 function dropPiece(e) {
   const target = e.target;
-
   if (draggedPiece === target) return;
 
-  swapGroups(draggedPiece, target);
+  swapPieces(draggedPiece, target);
   mergeAdjacent();
   checkCompletion();
 }
 
-function swapGroups(p1, p2) {
-  const g1 = p1.dataset.group;
-  const g2 = p2.dataset.group;
+function swapPieces(p1, p2) {
+  const tempRow = p1.dataset.row;
+  const tempCol = p1.dataset.col;
 
-  if (g1 === g2) return;
+  p1.dataset.row = p2.dataset.row;
+  p1.dataset.col = p2.dataset.col;
 
-  const group1 = groups[g1];
-  const group2 = groups[g2];
+  p2.dataset.row = tempRow;
+  p2.dataset.col = tempCol;
 
-  group1.forEach(piece => piece.dataset.group = g2);
-  group2.forEach(piece => piece.dataset.group = g1);
-
-  groups[g1] = group2;
-  groups[g2] = group1;
-
-  reRenderBoard();
+  reRender();
 }
 
-function reRenderBoard() {
+function reRender() {
   const pieces = Array.from(container.children);
 
   pieces.sort((a, b) => {
-    const rowA = parseInt(a.dataset.currentRow);
-    const colA = parseInt(a.dataset.currentCol);
-    const rowB = parseInt(b.dataset.currentRow);
-    const colB = parseInt(b.dataset.currentCol);
-    return rowA * size + colA - (rowB * size + colB);
+    const posA = a.dataset.row * size + parseInt(a.dataset.col);
+    const posB = b.dataset.row * size + parseInt(b.dataset.col);
+    return posA - posB;
   });
 
-  pieces.forEach(piece => container.appendChild(piece));
+  pieces.forEach(p => container.appendChild(p));
 }
 
 function mergeAdjacent() {
@@ -124,18 +104,20 @@ function mergeAdjacent() {
       const r2 = parseInt(p2.dataset.correctRow);
       const c2 = parseInt(p2.dataset.correctCol);
 
-      if (
+      const areNeighbors =
         (Math.abs(r1 - r2) === 1 && c1 === c2) ||
-        (Math.abs(c1 - c2) === 1 && r1 === r2)
-      ) {
-        if (p1.dataset.group !== p2.dataset.group) {
-          const g1 = p1.dataset.group;
-          const g2 = p2.dataset.group;
+        (Math.abs(c1 - c2) === 1 && r1 === r2);
 
-          groups[g1] = groups[g1].concat(groups[g2]);
-          groups[g2].forEach(p => p.dataset.group = g1);
-          delete groups[g2];
-        }
+      if (areNeighbors && p1.dataset.group !== p2.dataset.group) {
+        const g1 = p1.dataset.group;
+        const g2 = p2.dataset.group;
+
+        pieces.forEach(p => {
+          if (p.dataset.group === g2) {
+            p.dataset.group = g1;
+            p.classList.add("merged");
+          }
+        });
       }
     });
   });
@@ -145,8 +127,8 @@ function checkCompletion() {
   const pieces = Array.from(container.children);
 
   const done = pieces.every(p =>
-    p.dataset.correctRow == p.dataset.currentRow &&
-    p.dataset.correctCol == p.dataset.currentCol
+    p.dataset.row == p.dataset.correctRow &&
+    p.dataset.col == p.dataset.correctCol
   );
 
   if (done) {
