@@ -12,7 +12,7 @@ function loadPuzzle() {
   pieces = [];
   container.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
 
-  const imgPath = `img${currentImage}.jpg`;
+  const imgPath = `img${currentImage}.jpeg`;
 
   for (let i = 0; i < size * size; i++) {
     const piece = document.createElement("div");
