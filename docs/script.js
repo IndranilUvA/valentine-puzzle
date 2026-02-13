@@ -1,7 +1,7 @@
 const container = document.getElementById("puzzle-container");
 const statusText = document.getElementById("status");
 
-const size = 3;           // 3x3 for debugging
+const size = 4;           // 3x3 for debugging
 const totalImages = 10;
 
 let currentImage = 1;
@@ -118,3 +118,4 @@ function shuffle(array) {
 }
 
 loadPuzzle();
+
