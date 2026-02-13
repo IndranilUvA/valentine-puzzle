@@ -1,3 +1,7 @@
+/* =========================
+   Page Styling
+========================= */
+
 body {
   text-align: center;
   font-family: Arial, sans-serif;
@@ -13,43 +17,57 @@ h1 {
 
 #status {
   font-size: 18px;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   color: #444;
 }
 
-/* Puzzle board */
+/* =========================
+   Puzzle Board (Grid)
+========================= */
+
 #puzzle-container {
-  position: relative;
-  width: 600px;
-  height: 600px;
+  width: 90vw;
+  max-width: 360px;   /* Good size for phone */
+  aspect-ratio: 1 / 1; /* Keeps it square */
   margin: 20px auto;
+  display: grid;
+  gap: 2px;
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-  overflow: hidden;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  padding: 4px;
 }
 
-/* Individual puzzle pieces */
+/* =========================
+   Puzzle Pieces
+========================= */
+
 .piece {
-  position: absolute;
   cursor: grab;
   border-radius: 8px;
-  box-shadow: 3px 3px 10px rgba(0,0,0,0.25);
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  touch-action: none; /* Important for mobile */
 }
 
 /* When dragging */
 .piece:active {
   cursor: grabbing;
   transform: scale(1.05);
-  box-shadow: 6px 6px 15px rgba(0,0,0,0.3);
-  transition: left 0.2s ease, top 0.2s ease;
-  touch-action: none;
-  transition: left 0.2s ease, top 0.2s ease;
+  box-shadow: 4px 4px 14px rgba(0,0,0,0.3);
 }
 
-/* When correctly placed (we set border in JS) */
-.piece[data-locked="true"] {
-  box-shadow: 0 0 12px rgba(0, 200, 100, 0.7);
+/* Optional: subtle glow when merged (if you add class later) */
+.piece.merged {
+  box-shadow: 0 0 10px rgba(0, 200, 100, 0.7);
 }
 
+/* =========================
+   Mobile Fine Tuning
+========================= */
+
+@media (min-width: 768px) {
+  #puzzle-container {
+    max-width: 480px;
+  }
+}
