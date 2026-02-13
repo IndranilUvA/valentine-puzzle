@@ -104,7 +104,7 @@ function checkCompletion() {
       } else {
         container.innerHTML = "";
         statusText.innerHTML =
-          "You completed our love story ❤️<br><br>I love you endlessly 💕";
+          "Hope you are less stressed now. ❤️<br><br>I love you endlessly 💕";
       }
     }, 800);
   }
