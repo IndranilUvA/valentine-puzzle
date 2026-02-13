@@ -1,21 +1,52 @@
 body {
   text-align: center;
-  font-family: Arial;
-  background: #ffe6f0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(to bottom, #ffe6f0, #ffd6e8);
+  margin: 0;
+  padding: 0;
 }
 
+h1 {
+  margin-top: 20px;
+  color: #cc0066;
+}
+
+#status {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #444;
+}
+
+/* Puzzle board */
 #puzzle-container {
-  width: 90vw;
-  max-width: 800px;
-  height: 90vw;
-  max-height: 800px;
+  position: relative;
+  width: 600px;
+  height: 600px;
   margin: 20px auto;
-  display: grid;
-  gap: 2px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  overflow: hidden;
 }
 
+/* Individual puzzle pieces */
 .piece {
-  background-size: 100% 100%;
-  cursor: pointer;
-  border-radius: 4px;
+  position: absolute;
+  cursor: grab;
+  border-radius: 8px;
+  box-shadow: 3px 3px 10px rgba(0,0,0,0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* When dragging */
+.piece:active {
+  cursor: grabbing;
+  transform: scale(1.05);
+  box-shadow: 6px 6px 15px rgba(0,0,0,0.3);
+  transition: left 0.2s ease, top 0.2s ease;
+}
+
+/* When correctly placed (we set border in JS) */
+.piece[data-locked="true"] {
+  box-shadow: 0 0 12px rgba(0, 200, 100, 0.7);
 }
