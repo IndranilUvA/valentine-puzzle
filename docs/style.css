@@ -4,7 +4,7 @@
 
 body {
   text-align: center;
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Arial, sans-serif;
   background: linear-gradient(to bottom, #ffe6f0, #ffd6e8);
   margin: 0;
   padding: 0;
@@ -13,29 +13,40 @@ body {
 h1 {
   margin-top: 20px;
   color: #cc0066;
+  font-weight: 600;
 }
 
 #status {
   font-size: 18px;
   margin-bottom: 15px;
   color: #444;
+  transition: opacity 0.4s ease;
 }
 
 /* =========================
-   Puzzle Board (Grid)
+   Puzzle Board
 ========================= */
 
 #puzzle-container {
   width: 90vw;
-  max-width: 360px;   /* Good size for phone */
-  aspect-ratio: 1 / 1; /* Keeps it square */
+  max-width: 360px;        /* Good size for phone */
+  aspect-ratio: 1 / 1;     /* Keep square */
   margin: 20px auto;
-  display: grid;
-  gap: 2px;
+  position: relative;      /* Important for absolute pieces */
   background: white;
-  border-radius: 14px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  padding: 4px;
+  border-radius: 16px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+
+/* Slight inner glow for premium feel */
+#puzzle-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  pointer-events: none;
+  box-shadow: inset 0 0 20px rgba(255, 192, 203, 0.2);
 }
 
 /* =========================
@@ -43,27 +54,55 @@ h1 {
 ========================= */
 
 .piece {
+  position: absolute;
   cursor: grab;
   border-radius: 8px;
-  box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  touch-action: none; /* Important for mobile */
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.25);
+  transition: 
+    transform 0.12s ease,
+    box-shadow 0.15s ease;
+  touch-action: none; /* Required for mobile */
 }
 
-/* When dragging */
+/* Drag effect */
 .piece:active {
   cursor: grabbing;
   transform: scale(1.05);
-  box-shadow: 4px 4px 14px rgba(0,0,0,0.3);
+  box-shadow: 4px 6px 16px rgba(0, 0, 0, 0.35);
 }
 
-/* Optional: subtle glow when merged (if you add class later) */
+/* When pieces are merged (snapped) */
 .piece.merged {
-  box-shadow: 0 0 10px rgba(0, 200, 100, 0.7);
+  box-shadow: 
+    0 0 12px rgba(0, 200, 120, 0.8),
+    2px 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* Optional subtle hover highlight (desktop only) */
+@media (hover: hover) {
+  .piece:hover {
+    box-shadow: 0 0 10px rgba(255, 105, 180, 0.6);
+  }
 }
 
 /* =========================
-   Mobile Fine Tuning
+   Completion Message Styling
+========================= */
+
+#status.complete {
+  font-size: 20px;
+  font-weight: 600;
+  color: #cc0066;
+  animation: fadeInLove 1s ease forwards;
+}
+
+@keyframes fadeInLove {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================
+   Larger Screens
 ========================= */
 
 @media (min-width: 768px) {
