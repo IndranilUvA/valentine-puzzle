@@ -1,52 +1,18 @@
 /* =========================
-   Page Styling
-========================= */
-
-body {
-  text-align: center;
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: linear-gradient(to bottom, #ffe6f0, #ffd6e8);
-  margin: 0;
-  padding: 0;
-}
-
-h1 {
-  margin-top: 20px;
-  color: #cc0066;
-  font-weight: 600;
-}
-
-#status {
-  font-size: 18px;
-  margin-bottom: 15px;
-  color: #444;
-  transition: opacity 0.4s ease;
-}
-
-/* =========================
-   Puzzle Board
+   Puzzle Board (GRID MODE)
 ========================= */
 
 #puzzle-container {
   width: 90vw;
-  max-width: 360px;        /* Good size for phone */
-  aspect-ratio: 1 / 1;     /* Keep square */
+  max-width: 360px;
+  aspect-ratio: 1 / 1;
   margin: 20px auto;
-  position: relative;      /* Important for absolute pieces */
+  display: grid;                /* IMPORTANT */
+  gap: 2px;
   background: white;
   border-radius: 16px;
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.18);
-  overflow: hidden;
-}
-
-/* Slight inner glow for premium feel */
-#puzzle-container::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 16px;
-  pointer-events: none;
-  box-shadow: inset 0 0 20px rgba(255, 192, 203, 0.2);
+  padding: 4px;
 }
 
 /* =========================
@@ -54,14 +20,13 @@ h1 {
 ========================= */
 
 .piece {
-  position: absolute;
+  width: 100%;                  /* IMPORTANT */
+  aspect-ratio: 1 / 1;          /* IMPORTANT */
   cursor: grab;
   border-radius: 8px;
   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.25);
-  transition: 
-    transform 0.12s ease,
-    box-shadow 0.15s ease;
-  touch-action: none; /* Required for mobile */
+  transition: transform 0.12s ease, box-shadow 0.15s ease;
+  background-repeat: no-repeat;
 }
 
 /* Drag effect */
@@ -71,42 +36,9 @@ h1 {
   box-shadow: 4px 6px 16px rgba(0, 0, 0, 0.35);
 }
 
-/* When pieces are merged (snapped) */
+/* When pieces are merged */
 .piece.merged {
   box-shadow: 
     0 0 12px rgba(0, 200, 120, 0.8),
     2px 2px 8px rgba(0, 0, 0, 0.25);
-}
-
-/* Optional subtle hover highlight (desktop only) */
-@media (hover: hover) {
-  .piece:hover {
-    box-shadow: 0 0 10px rgba(255, 105, 180, 0.6);
-  }
-}
-
-/* =========================
-   Completion Message Styling
-========================= */
-
-#status.complete {
-  font-size: 20px;
-  font-weight: 600;
-  color: #cc0066;
-  animation: fadeInLove 1s ease forwards;
-}
-
-@keyframes fadeInLove {
-  0% { opacity: 0; transform: translateY(10px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-/* =========================
-   Larger Screens
-========================= */
-
-@media (min-width: 768px) {
-  #puzzle-container {
-    max-width: 480px;
-  }
 }
