@@ -1,42 +1,50 @@
 const container = document.getElementById("puzzle-container");
 const statusText = document.getElementById("status");
 
-const size = 6; // change to 8 if harder
+const size = 6; // change to 8 if needed
 const totalImages = 10;
+const boardSize = 600; // pixel size of puzzle area
 
 let currentImage = 1;
 let draggedPiece = null;
 
 function loadPuzzle() {
   container.innerHTML = "";
-  container.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
-  container.style.gridTemplateRows = `repeat(${size}, 1fr)`;
+  container.style.position = "relative";
+  container.style.width = boardSize + "px";
+  container.style.height = boardSize + "px";
+  container.style.display = "block";
 
   const imgPath = `img${currentImage}.jpeg`;
+  const pieceSize = boardSize / size;
 
   let positions = [];
-  for (let i = 0; i < size * size; i++) {
-    positions.push(i);
-  }
-
+  for (let i = 0; i < size * size; i++) positions.push(i);
   shuffleArray(positions);
 
   positions.forEach((pos, index) => {
     const piece = document.createElement("div");
     piece.classList.add("piece");
 
-    piece.draggable = true;
+    const correctRow = Math.floor(pos / size);
+    const correctCol = pos % size;
 
-    const row = Math.floor(pos / size);
-    const col = pos % size;
+    piece.style.width = pieceSize + "px";
+    piece.style.height = pieceSize + "px";
+    piece.style.position = "absolute";
+
+    // Random starting position
+    piece.style.left = Math.random() * (boardSize - pieceSize) + "px";
+    piece.style.top = Math.random() * (boardSize - pieceSize) + "px";
 
     piece.style.backgroundImage = `url(${imgPath})`;
-    piece.style.backgroundSize = `${size * 100}% ${size * 100}%`;
+    piece.style.backgroundSize = `${boardSize}px ${boardSize}px`;
     piece.style.backgroundPosition =
-      `${(col * 100) / (size - 1)}% ${(row * 100) / (size - 1)}%`;
+      `-${correctCol * pieceSize}px -${correctRow * pieceSize}px`;
 
-    piece.dataset.correct = pos;
-    piece.dataset.current = index;
+    piece.dataset.correctRow = correctRow;
+    piece.dataset.correctCol = correctCol;
+    piece.dataset.locked = "false";
 
     container.appendChild(piece);
   });
@@ -49,42 +57,62 @@ function addDragEvents() {
   const pieces = document.querySelectorAll(".piece");
 
   pieces.forEach(piece => {
-    piece.addEventListener("dragstart", () => {
+    piece.addEventListener("mousedown", e => {
+      if (piece.dataset.locked === "true") return;
+
       draggedPiece = piece;
-    });
+      let shiftX = e.clientX - piece.getBoundingClientRect().left;
+      let shiftY = e.clientY - piece.getBoundingClientRect().top;
 
-    piece.addEventListener("dragover", e => {
-      e.preventDefault();
-    });
-
-    piece.addEventListener("drop", () => {
-      if (draggedPiece !== piece) {
-        swapPieces(draggedPiece, piece);
-        checkCompletion();
+      function moveAt(pageX, pageY) {
+        piece.style.left = pageX - shiftX - container.offsetLeft + "px";
+        piece.style.top = pageY - shiftY - container.offsetTop + "px";
       }
+
+      function onMouseMove(e) {
+        moveAt(e.pageX, e.pageY);
+      }
+
+      document.addEventListener("mousemove", onMouseMove);
+
+      document.addEventListener("mouseup", () => {
+        document.removeEventListener("mousemove", onMouseMove);
+        snapIfCorrect(piece);
+      }, { once: true });
     });
   });
 }
 
-function swapPieces(p1, p2) {
-  const temp = p1.style.backgroundPosition;
-  const tempCorrect = p1.dataset.correct;
+function snapIfCorrect(piece) {
+  const pieceSize = boardSize / size;
 
-  p1.style.backgroundPosition = p2.style.backgroundPosition;
-  p1.dataset.correct = p2.dataset.correct;
+  const currentLeft = parseInt(piece.style.left);
+  const currentTop = parseInt(piece.style.top);
 
-  p2.style.backgroundPosition = temp;
-  p2.dataset.correct = tempCorrect;
+  const correctLeft = piece.dataset.correctCol * pieceSize;
+  const correctTop = piece.dataset.correctRow * pieceSize;
+
+  const tolerance = 20;
+
+  if (
+    Math.abs(currentLeft - correctLeft) < tolerance &&
+    Math.abs(currentTop - correctTop) < tolerance
+  ) {
+    piece.style.left = correctLeft + "px";
+    piece.style.top = correctTop + "px";
+    piece.style.border = "3px solid #00cc66";
+    piece.dataset.locked = "true";
+
+    checkCompletion();
+  }
 }
 
 function checkCompletion() {
   const pieces = document.querySelectorAll(".piece");
   let complete = true;
 
-  pieces.forEach((piece, index) => {
-    if (parseInt(piece.dataset.correct) !== index) {
-      complete = false;
-    }
+  pieces.forEach(piece => {
+    if (piece.dataset.locked === "false") complete = false;
   });
 
   if (complete) {
@@ -95,7 +123,7 @@ function checkCompletion() {
       } else {
         showFinalMessage();
       }
-    }, 800);
+    }, 1000);
   }
 }
 
